@@ -1,11 +1,3 @@
-const container = document.getElementById('root')
-
-const groups = [
-  getChildrenAsTuple('hours'),
-  getChildrenAsTuple('minutes'),
-  getChildrenAsTuple('seconds')
-]
-
 const config = {
   imgPath: './assets/digits.png',
   unitWidth: 150,
@@ -17,95 +9,118 @@ const config = {
   // hide leading zeros
 }
 
-function pipe ( ...fns ) {
-  return x => fns.reduce((f, g) => g(f), x)
+function loadImage( url ) {
+  return new Promise((resolve, reject) => {
+    const img = new Image()
+    img.addEventListener('load', () => resolve(img))
+    img.addEventListener('error', () => reject('Unable to load an image'))
+    img.src = url
+  })
 }
 
-function curry ( fn ) {
-  const arity = fn.length
-  return function curried (...args) {
-    if (args.length >= fn.length) return fn.apply( this, args )
-    return (...args2) => curried.apply(this, args.concat(...args2))
+function calcUnitPivots( width, height ) {
+  const wp = []
+  const hp = []
+  for (let w = 0; w < width; w += config.unitWidth) wp.push(w)
+  for (let h = 0; h < height; h += config.unitHeight) hp.push(h)
+  return [ wp, hp ]
+}
+
+function generateCssAnimations ( heightPivots ) {
+  const result = []
+
+  // "head to tail" shift
+  const shiftArray = arr => {
+    const [head, ...tail] = arr
+    tail.push(head)
+    return tail
   }
-}
 
-function setUnitElementUrl( url, elem ) {
-  console.log('setting url', url)
-  elem.style.backgroundImage = `url(${url})`
-  return elem
-}
+  // generate css animations with different steps
+  // each animation will start one step "later" than previous
+  let prev = heightPivots
+  const fraction = Math.floor(100 / heightPivots.length) // each step amount
+  for (let i = 0; i < heightPivots.length; ++i) {
 
-function setUnitElementSet( setPosition, elem ) {
-  console.log('setting set')
-  elem.style.backgroundPositionY = setPosition
-  return elem
-}
+    const domStr = `
+      @keyframes#set-cycle-${i} {
+        ${prev.reduce((acc, el, idx) => {
+          acc += `${(idx+1) * fraction}% { background-position-y: ${el}px; }`
+          return acc
+        }, '')} 
+      }
+    `.replace(/\s/gm, '').replace(/#/, ' ') // clear rules a bit, not really necessary
 
-function setUnitElementValue( valuePosition, elem ) {
-  console.log('setting valeu')
-  elem.style.backgroundPositionX = valuePosition
-  return elem
-}
-
-function* getNextRandomSetIndex( setLength ) {
-  while (true) {
-    yield Math.floor(Math.random() * setLength)
+    result.push(domStr)
+    prev = shiftArray(prev)
   }
+
+  return result
 }
 
-function getChildrenAsTuple( id ) {
-  const group = document.getElementById(id)
-  return [group.firstElementChild, group.lastElementChild]
+function createEmptyStyleSheet() {
+  const css = document.createElement('style')
+  document.head.appendChild(css)
+  return css.sheet
 }
 
-function prepareUnitMap( imgWidth, imgHeight ) {
-  const map = { symbols: [], sets: [] }
-  for (let w = 0; w < imgWidth; w += config.unitWidth) map.symbols.push(w)
-  for (let h = 0; h < imgHeight; h += config.unitHeight) map.sets.push(h)
-  return map
+function attachAnimation( sheet, rules ) {
+
 }
 
-function initUnits( unitMap ) {
-  const unitsArr = Array.from(document.querySelectorAll('[data-unit-type]'))
-  const imgUrl = `url(${config.imgPath})`
+function displayClock( groups, widthPivots ) {
+  const date = new Date()
+  const parts = [
+    date.getHours(),
+    date.getMinutes(),
+    date.getSeconds()
+  ].map(elem => elem.toString().padStart(2, '0'))
 
-  const basicSetupFn = x => pipe(
-    curry(setUnitElementUrl)(imgUrl),
-    curry(setUnitElementSet)(0),
-    curry(setUnitElementValue)(x)
+  groups.forEach(
+    (group, idx) => {
+      const [tens, ones] = group
+      const part = parts[idx]
+
+      tens.style.backgroundPositionX = `-${widthPivots[+part[0]]}px`
+      ones.style.backgroundPositionX = `-${widthPivots[+part[1]]}px`
+    }
   )
 
-  unitsArr
-    .filter(elem => elem.dataset.unitType === 'digit')
-    .forEach(basicSetupFn(0))
-
-  unitsArr
-    .filter(elem => elem.dataset.unitType === 'divider')
-    .forEach(basicSetupFn(10))
 }
 
-const img = new Image()
-img.addEventListener('load', () => {
-  const unitMap = prepareUnitMap(img.width, img.height)
+async function initApplication() {
+  // loading img with numbers and other symbols
+  const img = await loadImage( config.imgPath )
+  const { width, height } = img
 
-  initUnits(unitMap)
+  const [ widthPivots, heightPivots ] = calcUnitPivots( width, height )
 
-  function changeDigitStyle ( elem, setIdx, digit ) {
-    elem.style.backgroundPosition = unitMap[setIdx][+digit]
-  }
+  // array of css rules
+  const cssAnimations = generateCssAnimations( heightPivots )
 
-  // setInterval(() => {
-  //   new Date()
-  //     .toLocaleTimeString("ru-RU")
-  //     .split(':')
-  //     .forEach((str, idx) => {
-  //       groups[idx]
-  //         .forEach((elem, n) => {
-  //           changeDigitStyle(elem, gen.next().value, str[n])
-  //         })
-  //     })
-  // }, 250)
-})
+  // creating stylesheet for custom animations
+  const styleSheet = createEmptyStyleSheet()
+  cssAnimations.forEach(rule => styleSheet.insertRule(rule))
 
-img.src = config.imgPath
+  const unitElements = Array.from(document.querySelectorAll('[data-unit-type]'))
+  // attaching style animations
+  unitElements
+    .forEach((elem, i) => elem.style.animation = `set-cycle-${i % heightPivots.length} 1s infinite steps(1, jump-start)`)
 
+  // fixnig non-digit symbols X position
+  unitElements
+    .filter(elem => elem.dataset.unitType === 'divider')
+    .forEach(elem => elem.style.backgroundPositionX = `-${widthPivots[10]}px`)
+
+  const groups = ['hours', 'minutes', 'seconds'].reduce((arr, id) => {
+    const group = document.getElementById(id)
+    arr.push([group.firstElementChild, group.lastElementChild])
+    return arr
+  }, [])
+
+  setInterval(() => {
+    displayClock( groups, widthPivots )
+  }, 1000)
+}
+
+initApplication()
