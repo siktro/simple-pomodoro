@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,29 +11,42 @@
 
   <title>Document</title>
 </head>
+
 <body>
   <div id="root" class="container">
-    <!-- HOURS -->
-    <div id="hours" class="unit-container container_hours">
-      <div class="unit" data-unit-type="digit"></div>
-      <div class="unit" data-unit-type="digit"></div>
+    <div class="chronograph">
+      <!-- HOURS -->
+      <div id="hours" class="unit-container container_hours">
+        <div class="unit" data-unit-type="digit"></div>
+        <div class="unit" data-unit-type="digit"></div>
+      </div>
+
+      <div class="unit" data-unit-type="divider"></div>
+
+      <!-- MINUTES -->
+      <div id="minutes" class="unit-container container_minutes">
+        <div class="unit" data-unit-type="digit"></div>
+        <div class="unit" data-unit-type="digit"></div>
+      </div>
+
+      <div class="unit" data-unit-type="divider"></div>
+
+      <!-- SECONDS -->
+      <div id="seconds" class="unit-container container_seconds">
+        <div class="unit" data-unit-type="digit"></div>
+        <div class="unit" data-unit-type="digit"></div>
+      </div>
     </div>
-
-    <div class="unit" data-unit-type="divider"></div>
-
-    <!-- MINUTES -->
-    <div id="minutes" class="unit-container container_minutes">
-      <div class="unit" data-unit-type="digit"></div>
-      <div class="unit" data-unit-type="digit"></div>
-    </div>
-
-    <div class="unit" data-unit-type="divider"></div>
-
-    <!-- SECONDS -->
-    <div id="seconds" class="unit-container container_seconds">
-      <div class="unit" data-unit-type="digit"></div>
-      <div class="unit" data-unit-type="digit"></div>
+    <div id="controls">
+      <div>Click me</div>
+      <div>Click me</div>
+      <div>Click me</div>
+      <div>Click me</div>
+      <div>Click me</div>
+      <div>Click me</div>
+      <div>Click me</div>
     </div>
   </div>
 </body>
+
 </html>
