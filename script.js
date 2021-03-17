@@ -113,16 +113,17 @@ function attachListeners() {
   const root = document.getElementById('root')
   const controls = document.getElementById('controls')
 
-  root.addEventListener('mouseenter', () => {
-    // if (!document.hasFocus()) return
-    console.log('hello')
-    // controls.style.display = 'block'
-  })
+  // TODO: sometime later
+  // root.addEventListener('mouseenter', () => {
+  //   // if (!document.hasFocus()) return
+  //   console.log('hello')
+  //   // controls.style.display = 'block'
+  // })
 
-  root.addEventListener('mouseleave', () => {
-    console.log('bye')
-    // controls.style.display = ''
-  })
+  // root.addEventListener('mouseleave', () => {
+  //   console.log('bye')
+  //   // controls.style.display = ''
+  // })
 }
 
 async function initApplication() {
@@ -148,9 +149,11 @@ async function initApplication() {
     arr.push([group.firstElementChild, group.lastElementChild])
     return arr
   }, [])
+
+  setInterval(() => {
+    displayClock( groups, widthPivots )
+  }, 500)
+
 }
 
-// initApplication()
-//   .then(value => {
-//     attachListeners()
-//   })
+initApplication()

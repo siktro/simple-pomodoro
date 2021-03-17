@@ -14,6 +14,7 @@ Project:
 
 Sideoffs:
   › Fallback if image cannot be loaded
-  › Add more symbols to the image
+  › Add own digits/symbols
+  › Add even more own symbols (maybe even alphabet)
   › With more symbols, create a new view/message when timer is done
   › Add some comments
