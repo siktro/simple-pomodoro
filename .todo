@@ -1,0 +1,19 @@
+Project:
+  ✔ Implement animation @done(21-02-26 18:51)
+  ✔ Implement simple clock @done(21-02-26 18:51)
+  ✔ Fix non-digit animation; Non-digit symbols should use independent animations steps @done(21-02-26 19:13)
+  › Refactor HTML for more functionality
+  › Implement timer
+  › Implement stopwatch
+    Maybe add splits to stopwatch and small history abowe
+  › Add ability to switch between clock and timer
+  › Add ability to change timer setup
+  › Extend config capabilities
+  › Scaling when resizing
+  ✔ Fix animation gliching @done(21-02-26 19:55)
+
+Sideoffs:
+  › Fallback if image cannot be loaded
+  › Add more symbols to the image
+  › With more symbols, create a new view/message when timer is done
+  › Add some comments
